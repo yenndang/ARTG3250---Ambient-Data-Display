@@ -1,10 +1,11 @@
-# ARTG3250: Physical Computing - Ambient Data Display: Group Project
+# ARTG3250: Physical Computing - Ambient Data Display
 
-## Project Name: ... **by ...**
+## Map of Missing Migrants **by Finn, Olivia, Yen**
 
 ## Data source:
 
-[add link later]
+- https://www.data-is-plural.com/archive/2020-01-15-edition/
+- https://missingmigrants.iom.int/downloads (2024-2023 dataset)
 
 ## Project Description:
 
