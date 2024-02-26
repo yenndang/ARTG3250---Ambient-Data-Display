@@ -9,4 +9,4 @@
 
 ## Project Description:
 
-Short paragraph describing the project concept, context where it is mean to be shown, and intended audience
+Our project intends to honor the missing migrants who have been lost in the process of migrating to another country. Through highlighting the top 6 countries where immigrants go missing along with the number of migrants that go missing via brightness of LEDs, we hope to raise awareness on this topic going forward. We created this Map of Missing Migrants with the intention of being displayed at the International Organization for Migrants for those who are interested or unaware of this issue.
