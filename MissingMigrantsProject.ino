@@ -32,41 +32,58 @@ int regionData[numberOfMonths][numberOfRegions] = {
   {25, 146, 27, 45, 22, 91}, // May
   {17, 781, 18, 93, 49, 3}, // June
   {35, 99, 58, 149, 99, 82}, // July
-  {133, 347, 43, 65 132, 84}, // August
+  {133, 347, 43, 65, 132, 84}, // August
   {29, 83, 38, 65, 114, 15}, // September
   {62, 83, 30, 53, 136, 65}, // October
   {36, 136, 34, 53, 126, 314}, // November
   {17, 304, 14, 19, 129, 35} // December
 };
 
-// Function to scale the value to PWM range using a logarithmic scale
-// (to make sure the lights are all visible on the map within the brightness 0-255)
+// Function to scale the value to PWM range using non-linear scaling
+// This method enhances the differentiation of brightness levels across LEDs, 
+// especially beneficial for datasets with a wide range of values. 
 
-// *More details*: convert raw data values into scaled PWM values for controlling the 
-// brightness of LEDs. The purpose of using a logarithmic scale is to visually normalize 
-// the wide range of data values, ensuring that even smaller values are perceptibly 
-// represented by the LEDs, while also preventing larger values from maxing out the 
-// brightness too quickly. This approach helps to maintain visual distinction across 
-// a broad spectrum of data points.
-//    Example: Example 1: Input value is 781 (the maximum in your dataset).
-//    normalized = log(781) / log(781) = 1
-//    pwmValue = 1 * 255 = 255
-//    Since 255 is not less than 10, the function returns 255. This represents full brightness.
+// More details: This function converts raw data values into scaled PWM values for
+//  controlling the brightness of LEDs. Unlike logarithmic scaling, which equally 
+//  distributes the perception of brightness across a wide range of values, non-linear
+//  scaling using a square root function amplifies the differences in mid-range values. 
+// This ensures that smaller and mid-range values are also perceptibly represented by 
+// the LEDs, making the visualization more dynamic and informative. Larger values are 
+// prevented from monopolizing the higher brightness levels, ensuring a balanced and 
+// visible spectrum of data points.
+
+// Example: For an input value of 781, 
+//    the normalized value approaches 1, 
+//    and after applying the square root scaling,
+//    it remains close to 1. This value is then scaled 
+//    to the maximum PWM value of 255, representing full brightness.
+//    For mid-range values, the square root scaling significantly increases
+//    their relative brightness, ensuring that these values are more distinguishable.
 int logScale(int input) {
-  const int maxInput = 781; // The maximum value from your dataset
-  if (input <= 0) return 0; // If the input is 0, keep the LED off
-  double normalized = log(input) / log(maxInput); // Logarithmic scaling
-  int pwmValue = int(normalized * 255);
-  if (pwmValue < 10) pwmValue = 10; // Minimum brightness threshold
-  return pwmValue;
-}
+    const int maxInput = 781;  // Define the maximum input value expected
+    if (input <= 0) return 0;  // Return 0 for non-positive input values to keep the LED off
+    
+    // Normalize the input value between 0 and 1
+    double normalized = (double)input / maxInput;
 
+    // Apply a square root function to the normalized value for non-linear scaling
+    double scaled = pow(normalized, 0.5);  // Enhances sensitivity for mid-range values
+
+    // Convert the scaled value to the PWM range (0-255), applying a minimum brightness threshold
+    int pwmValue = (int)(scaled * 255);
+    pwmValue = max(10, pwmValue);  // Ensures visibility for low but non-zero values
+
+    return pwmValue;
+}
 
 void setup() {
   // Initialize LED pins
   for (int i = 0; i < numberOfRegions; i++) {
     pinMode(ledPins[i], OUTPUT);
   }
+  //DEBUGGING
+  Serial.begin(9600); // Start serial communication in your setup()
+
 }
 
 
@@ -81,6 +98,17 @@ void loop() {
         // Update LEDs to the next month's data
         for (int region = 0; region < numberOfRegions; region++) {
             int targetBrightness = logScale(regionData[month][region]);
+
+            // Debugging output + for monitoring
+            Serial.print("Region: ");
+            Serial.print(regionNames[region]);
+            Serial.print(", Month: ");
+            Serial.print(month + 1);
+            Serial.print(", Data Value: ");
+            Serial.print(regionData[month][region]);
+            Serial.print(", PWM Value: ");
+            Serial.println(targetBrightness);
+
             analogWrite(ledPins[region], targetBrightness);
         }
 
